@@ -62,35 +62,71 @@ public class Computer {
 	}
 	
 	public void executeAdd() {
-		BitString destBS = mIR.substring(4, 3);
-		BitString source1BS = mIR.substring(7, 3);
-		int addMode = mIR.substring(10, 1).getValue();
-		int sum = mRegisters[source1BS.getValue()].getValue2sComp();
-		if (addMode == 0) {
-			BitString source2BS = mIR.substring(13, 3);
-			sum += mRegisters[source2BS.getValue()].getValue2sComp();
-		} else if (addMode == 1) {
-			int immNum = mIR.substring(11, 5).getValue2sComp();
-			sum += immNum;
-		}
+		BitString destBS = mIR.substring(16, 5);
+		BitString source1BS = mIR.substring(6, 5);
+		BitString source2BS = mIR.substring(11, 5);
+		//int addMode = mIR.substring(10, 1).getValue();
+		int sum = mRegisters[source1BS.getValue()].getValue2sComp()
+					+ mRegisters[source2BS.getValue()].getValue2sComp();
+//		if (addMode == 0) {
+//			BitString source2BS = mIR.substring(13, 3);
+//			sum += mRegisters[source2BS.getValue()].getValue2sComp();
+//		} else if (addMode == 1) {
+//			int immNum = mIR.substring(11, 5).getValue2sComp();
+//			sum += immNum;
+//		}
 		mRegisters[destBS.getValue()].setValue2sComp(sum);
-		setCC(destBS);
+//		setCC(destBS);
 	}
 	
 	public void executeAddu() {
-	
+		BitString destBS = mIR.substring(16, 5);
+		BitString source1BS = mIR.substring(6, 5);
+		BitString source2BS = mIR.substring(11, 5);
+		int sum = mRegisters[source1BS.getValue()].getValue()
+					+ mRegisters[source2BS.getValue()].getValue();
+		
+		mRegisters[destBS.getValue()].setValue(sum);
 	}
 	
 	public void executeAddi() {
+		BitString destBS = mIR.substring(11, 5);
+		BitString source1BS = mIR.substring(6, 5);
+		int immNum = mIR.substring(16, 16).getValue2sComp();
+		int sum = mRegisters[source1BS.getValue()].getValue2sComp()
+					+ immNum;
 		
+		mRegisters[destBS.getValue()].setValue2sComp(sum);
 	}
 	
 	public void executeAddui() {
+		BitString destBS = mIR.substring(11, 5);
+		BitString source1BS = mIR.substring(6, 5);
+		int immNum = mIR.substring(16, 16).getValue();
+		int sum = mRegisters[source1BS.getValue()].getValue()
+					+ immNum;
 		
+		mRegisters[destBS.getValue()].setValue(sum);
 	}
 	
 	public void executeAnd() {
-		
+		BitString destBS = mIR.substring(16, 5);
+		BitString source1BS = mIR.substring(6, 5);
+		BitString source2BS = mIR.substring(11, 5);
+		StringBuilder result = new StringBuilder();
+		for(int i = 0; i < source1BS.getLength()  - 1; i++) {
+			if ((source1BS.toString().charAt(i) == '1' 
+					&& source2BS.toString().charAt(i) == '1')) {
+				result.append("1");
+			} else {
+				result.append("0");	
+			}
+		}
+		char[] binChar = new char[result.length()];
+        for (int i = 0; i < result.length(); i++) { 
+            binChar[i] = result.charAt(i); 
+        }
+		mRegisters[destBS.getValue()].setBits(binChar);	
 	}
 	
 	public void executeAndi() {
@@ -98,7 +134,23 @@ public class Computer {
 	}
 	
 	public void executeOr() {
-		
+		BitString destBS = mIR.substring(16, 5);
+		BitString source1BS = mIR.substring(6, 5);
+		BitString source2BS = mIR.substring(11, 5);
+		StringBuilder result = new StringBuilder();
+		for(int i = 0; i < source1BS.getLength()  - 1; i++) {
+			if ((source1BS.toString().charAt(i) == '1' 
+					|| source2BS.toString().charAt(i) == '1')) {
+				result.append("1");
+			} else {
+				result.append("0");	
+			}
+		}
+		char[] binChar = new char[result.length()];
+        for (int i = 0; i < result.length(); i++) { 
+            binChar[i] = result.charAt(i); 
+        }
+		mRegisters[destBS.getValue()].setBits(binChar);		
 	}
 	
 	public void executeOri() {

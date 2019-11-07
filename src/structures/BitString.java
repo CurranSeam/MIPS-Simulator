@@ -18,7 +18,7 @@ public class BitString {
 	private final static int MAX_BITS = 32;
 	private final static int MAX_VALUE = 2147483647; // 2^15 - 1
 	private final static int MIN_VALUE = -2147483648; // -2^15
-	private final static long MAX_UNSIGNED_VALUE = 4294967295L‬; // 2^16 - 1
+	private final static long MAX_UNSIGNED_VALUE = 4294967295L;// 2^16 - 1
 	
 	private char[] mBits;
 	private int mLength;
