@@ -115,8 +115,9 @@ public class Computer {
 		BitString source2BS = mIR.substring(11, 5);
 		StringBuilder result = new StringBuilder();
 		for(int i = 0; i < source1BS.getLength()  - 1; i++) {
-			if ((source1BS.toString().charAt(i) == '1' 
-					&& source2BS.toString().charAt(i) == '1')) {
+			if ((mRegisters[source1BS.getValue()].toString().charAt(i) ==
+					'1' && mRegisters[source2BS.getValue()].toString().charAt(i) 
+					== '1')) {
 				result.append("1");
 			} else {
 				result.append("0");	
@@ -130,7 +131,24 @@ public class Computer {
 	}
 	
 	public void executeAndi() {
-		
+		BitString destBS = mIR.substring(16, 5);
+		BitString source1BS = mIR.substring(6, 5);
+		BitString immNum = mIR.substring(16, 16);
+		immNum.signExtend();
+		StringBuilder result = new StringBuilder();
+		for(int i = 0; i < source1BS.getLength()  - 1; i++) {
+			if ((source1BS.toString().charAt(i) == '1' 
+					&& immNum.toString().charAt(i) == '1')) {
+				result.append("1");
+			} else {
+				result.append("0");	
+			}
+		}
+		char[] binChar = new char[result.length()];
+        for (int i = 0; i < result.length(); i++) { 
+            binChar[i] = result.charAt(i); 
+        }
+		mRegisters[destBS.getValue()].setBits(binChar);	
 	}
 	
 	public void executeOr() {
@@ -154,7 +172,24 @@ public class Computer {
 	}
 	
 	public void executeOri() {
-		
+		BitString destBS = mIR.substring(16, 5);
+		BitString source1BS = mIR.substring(6, 5);
+		BitString immNum = mIR.substring(16, 16);
+		immNum.signExtend();
+		StringBuilder result = new StringBuilder();
+		for(int i = 0; i < source1BS.getLength()  - 1; i++) {
+			if ((source1BS.toString().charAt(i) == '1' 
+					|| immNum.toString().charAt(i) == '1')) {
+				result.append("1");
+			} else {
+				result.append("0");	
+			}
+		}
+		char[] binChar = new char[result.length()];
+        for (int i = 0; i < result.length(); i++) { 
+            binChar[i] = result.charAt(i); 
+        }
+		mRegisters[destBS.getValue()].setBits(binChar);		
 	}
 	
 	public void executeLw() {
