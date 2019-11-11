@@ -36,6 +36,25 @@ public class BitString {
 		mBits = Arrays.copyOf(bits, bits.length);
 		mLength = bits.length;
 	}
+	
+	public void signExtend() {
+		BitString signExtend = new BitString();
+		BitString original = new BitString();
+		original.setBits(mBits);
+		if (mBits[0] == '1') {
+			char[] bitsExtend = {'1', '1', '1', '1', '1', '1', '1', '1', 
+					'1', '1', '1', '1', '1', '1', '1', '1'};
+			signExtend.setBits(bitsExtend);
+			BitString newBitString = signExtend.append(original);
+			append(newBitString);
+		} else {
+			char[] bitsExtend = {'0', '0', '0', '0', '0', '0', '0', '0',
+					'0', '0', '0', '0', '0', '0', '0', '0'};
+			signExtend.setBits(bitsExtend);
+			BitString newBitString = signExtend.append(original);
+			append(newBitString);
+		}
+	}
 
 	/**
 	 * Flips all the bits of the BitString. 
@@ -86,7 +105,7 @@ public class BitString {
 		if (mBits == null) {
 			throw new IllegalArgumentException("Bit String must be set first.");
 		}
-		int num = Integer.parseInt(mBits.toString(), 2);
+		int num = getValue2sComp();
 		for (int i = 0; i <= n; i++) {
 			num = num << n;
 		}
