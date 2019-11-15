@@ -37,22 +37,22 @@ public class BitString {
 		mLength = bits.length;
 	}
 	
-	public void signExtend() {
+	public BitString signExtend() {
 		BitString signExtend = new BitString();
-		BitString original = new BitString();
-		original.setBits(mBits);
+//		BitString original = new BitString();
+//		original.setBits(mBits);
 		if (mBits[0] == '1') {
 			char[] bitsExtend = {'1', '1', '1', '1', '1', '1', '1', '1', 
 					'1', '1', '1', '1', '1', '1', '1', '1'};
 			signExtend.setBits(bitsExtend);
-			BitString newBitString = signExtend.append(original);
-			append(newBitString);
+			BitString newBitString = signExtend.append(this);
+			return newBitString;
 		} else {
 			char[] bitsExtend = {'0', '0', '0', '0', '0', '0', '0', '0',
 					'0', '0', '0', '0', '0', '0', '0', '0'};
 			signExtend.setBits(bitsExtend);
-			BitString newBitString = signExtend.append(original);
-			append(newBitString);
+			BitString newBitString = signExtend.append(this);
+			return newBitString;
 		}
 	}
 

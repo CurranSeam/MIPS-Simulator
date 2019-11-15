@@ -3,6 +3,9 @@
  * Project 1
  */
 package structures;
+
+import java.util.Arrays;
+
 /**
  * Computer class comprises of memory, registers, cc and
  * can execute the instructions based on PC and IR 
@@ -105,10 +108,9 @@ public class Computer {
 		BitString source1BS = mIR.substring(6, 5);
 		BitString source2BS = mIR.substring(11, 5);
 		StringBuilder result = new StringBuilder();
-		for(int i = 0; i < source1BS.getLength()  - 1; i++) {
-			if ((mRegisters[source1BS.getValue()].toString().charAt(i) ==
-					'1' && mRegisters[source2BS.getValue()].toString().charAt(i) 
-					== '1')) {
+		for(int i = 0; i < mRegisters[source1BS.getValue()].getLength(); i++) {
+			if (mRegisters[source1BS.getValue()].getBits()[i] == '1' 
+					&& mRegisters[source2BS.getValue()].getBits()[i] == '1') {
 				result.append("1");
 			} else {
 				result.append("0");	
@@ -122,14 +124,14 @@ public class Computer {
 	}
 	
 	public void executeAndi() {
-		BitString destBS = mIR.substring(16, 5);
+		BitString destBS = mIR.substring(11, 5);
 		BitString source1BS = mIR.substring(6, 5);
-		BitString immNum = mIR.substring(16, 16);
-		immNum.signExtend();
+		BitString immBS = mIR.substring(16, 16);
+		BitString immNum = immBS.signExtend();
 		StringBuilder result = new StringBuilder();
-		for(int i = 0; i < source1BS.getLength()  - 1; i++) {
-			if (mRegisters[source1BS.getValue()].toString().charAt(i) == '1' 
-					&& immNum.toString().charAt(i) == '1') {
+		for(int i = 0; i < mRegisters[source1BS.getValue()].getLength(); i++) {
+			if (mRegisters[source1BS.getValue()].getBits()[i] == '1' 
+					&& immNum.getBits()[i] == '1') {
 				result.append("1");
 			} else {
 				result.append("0");	
@@ -147,9 +149,9 @@ public class Computer {
 		BitString source1BS = mIR.substring(6, 5);
 		BitString source2BS = mIR.substring(11, 5);
 		StringBuilder result = new StringBuilder();
-		for(int i = 0; i < source1BS.getLength()  - 1; i++) {
-			if (mRegisters[source1BS.getValue()].toString().charAt(i) == '1' 
-					|| mRegisters[source2BS.getValue()].toString().charAt(i) == '1') {
+		for(int i = 0; i < mRegisters[source1BS.getValue()].getLength(); i++) {
+			if (mRegisters[source1BS.getValue()].getBits()[i] == '1'
+					|| mRegisters[source2BS.getValue()].getBits()[i] == '1') {
 				result.append("1");
 			} else {
 				result.append("0");	
@@ -159,18 +161,18 @@ public class Computer {
         for (int i = 0; i < result.length(); i++) { 
             binChar[i] = result.charAt(i); 
         }
-		mRegisters[destBS.getValue()].setBits(binChar);		
+		mRegisters[destBS.getValue()].setBits(binChar);
 	}
 	
 	public void executeOri() {
 		BitString destBS = mIR.substring(11, 5);
 		BitString source1BS = mIR.substring(6, 5);
-		BitString immNum = mIR.substring(16, 16);
-		immNum.signExtend();
+		BitString immBS = mIR.substring(16, 16);
+		BitString immNum = immBS.signExtend();
 		StringBuilder result = new StringBuilder();
-		for(int i = 0; i < source1BS.getLength()  - 1; i++) {
-			if (mRegisters[source1BS.getValue()].toString().charAt(i) == '1' 
-					|| immNum.toString().charAt(i) == '1') {
+		for(int i = 0; i < mRegisters[source1BS.getValue()].getLength(); i++) {
+			if (mRegisters[source1BS.getValue()].getBits()[i] == '1'
+					|| immNum.getBits()[i] == '1') {
 				result.append("1");
 			} else {
 				result.append("0");	
@@ -288,7 +290,15 @@ public class Computer {
 		BitString instruction = new BitString();
 		instruction.setBits(new char[0]);
 		int x = 0;
-		while (x < 4) {
+		/**
+		 * 
+		 * CHANGE
+		 * THIS
+		 * EVERY
+		 * TIME
+		 * 
+		 */
+		while (x < 7) {
 			// Fetch the instruction
 			for (int i = 0; i < 4; i++) {
 				instruction = instruction.append(mMemory[mPC.getValue()]);
@@ -321,19 +331,31 @@ public class Computer {
 //			}
 			if (opCode == 35) {
 				executeLw();
-//				System.out.println(mRegisters[4].getValue());
+//				System.out.println(mRegisters[4].getValue2sComp());
 			} else if (opCode == 0) {
-				BitString functCode = mIR.substring(26, 6);
-				if (functCode.getValue() == 32) {
+				int functCode = mIR.substring(26, 6).getValue();
+				if (functCode == 32) {
 					executeAdd();
-//					System.out.println(mRegisters[18].getValue());
-				} else {
+//					System.out.println(mRegisters[18].getValue2sComp());
+				} else if (functCode == 33) {
 					executeAddu();
+				} else if (functCode == 37) {
+					executeOr();
+//					System.out.println(mRegisters[19].getValue2sComp());
+				} else if (functCode == 36) {
+					executeAnd();
+//					System.out.println(mRegisters[21].getValue2sComp());
 				}
 			} else if (opCode == 8) {
 				executeAddi();
-//				System.out.println(mRegisters[16].getValue());
-			} 
+//				System.out.println(mRegisters[16].getValue2sComp());
+			} else if (opCode == 12) {
+				executeAndi();
+				System.out.println(mRegisters[22].getValue2sComp());
+			} else if (opCode == 13) {
+				executeOri();
+//				System.out.println(mRegisters[20].getValue2sComp());
+			}
 			instruction = new BitString();
 			instruction.setBits(new char[0]);
 			x++;
