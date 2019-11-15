@@ -17,7 +17,7 @@ import java.util.Arrays;
  */
 public class Computer {
 
-	private final static int MAX_MEMORY = 50;
+	private final static int MAX_MEMORY = 100;
 	private final static int MAX_REGISTERS = 32;
 
 	private BitString mRegisters[];
@@ -47,7 +47,7 @@ public class Computer {
 		mMemory = new BitString[MAX_MEMORY];
 		for (int i = 0; i < MAX_MEMORY; i++) {
 			mMemory[i] = new BitString();
-			mMemory[i].setValue(i);
+			mMemory[i].setValue(0);
 		}
 	}
 
@@ -227,13 +227,13 @@ public class Computer {
 		BitString source1BS = mIR.substring(6, 5);
 		BitString source2BS = mIR.substring(11, 5);
 		BitString labelBS = mIR.substring(16, 16);
-		int offset = (labelBS.getValue2sComp() - mPC.getValue()) / 4;
+		int offset = labelBS.getValue2sComp() * 4;
 		
 		BitString source1 = mRegisters[source1BS.getValue()];
 		BitString source2 = mRegisters[source2BS.getValue()];
 		
 		if (source1.getValue() == source2.getValue()) {
-			mPC.setValue2sComp(mPC.getValue() + offset);
+			mPC.setValue(mPC.getValue() + offset);
 		}
 	}
 	
@@ -241,26 +241,26 @@ public class Computer {
 		BitString source1BS = mIR.substring(6, 5);
 		BitString source2BS = mIR.substring(11, 5);
 		BitString labelBS = mIR.substring(16, 16);
-		int offset = (labelBS.getValue2sComp() - mPC.getValue()) / 4;
+		int offset = labelBS.getValue2sComp() * 4;
 		
 		BitString source1 = mRegisters[source1BS.getValue()];
 		BitString source2 = mRegisters[source2BS.getValue()];
 		
 		if (source1.getValue() != source2.getValue()) {
-			mPC.setValue2sComp(mPC.getValue() + offset);
+			mPC.setValue(mPC.getValue() + offset);
 		}
 	}
 	
 	public void executeJ() {
 		BitString addressBS = mIR.substring(6, 26);
-		mPC.setValue2sComp(addressBS.getValue());
+		BitString fullAddressBS = addressBS.signExtend();
+		mPC.setValue(fullAddressBS.getValue());
 	}
 	
 	public void executeJr() {
 		BitString registerBS = mIR.substring(6, 5);
 		BitString addressBS = mRegisters[registerBS.getValue()];
-		
-		mPC.setValue2sComp(addressBS.getValue());
+		mPC.setValue(addressBS.getValue());
 	}
 	
 //	public void setCC(BitString destBS) {
@@ -289,23 +289,18 @@ public class Computer {
 		int opCode;
 		BitString instruction = new BitString();
 		instruction.setBits(new char[0]);
-		int x = 0;
-		/**
-		 * 
-		 * CHANGE
-		 * THIS
-		 * EVERY
-		 * TIME
-		 * 
-		 */
-		while (x < 7) {
+		
+		while (true) {
 			// Fetch the instruction
 			for (int i = 0; i < 4; i++) {
 				instruction = instruction.append(mMemory[mPC.getValue()]);
 				mPC.addOne();
 			}
 			mIR = instruction;
-//			mPC.addFour();
+			if (mIR.getValue() == 0) {
+				System.out.println("null reached");
+				return;
+			}
 
 			// Decode the instruction's first 4 bits 
 			// to figure out the opcode
@@ -328,13 +323,16 @@ public class Computer {
 //				} else if (trapVect == 33) {
 //					executeOut();
 //				}
-//			}
+//			} 
 			if (opCode == 35) {
 				executeLw();
 //				System.out.println(mRegisters[4].getValue2sComp());
 			} else if (opCode == 0) {
 				int functCode = mIR.substring(26, 6).getValue();
-				if (functCode == 32) {
+				
+				if (functCode == 8) {
+					executeJr();
+				} else if (functCode == 32) {
 					executeAdd();
 //					System.out.println(mRegisters[18].getValue2sComp());
 				} else if (functCode == 33) {
@@ -346,19 +344,24 @@ public class Computer {
 					executeAnd();
 //					System.out.println(mRegisters[21].getValue2sComp());
 				}
+			} else if (opCode == 4) {
+				executeBeq();
+//				System.out.println(mRegisters[23].getValue2sComp());
+			} else if (opCode == 5) {
+				executeBne();
+//				System.out.println(mRegisters[22].getValue2sComp());
 			} else if (opCode == 8) {
 				executeAddi();
-//				System.out.println(mRegisters[16].getValue2sComp());
+				System.out.println(mRegisters[9].getValue2sComp());
 			} else if (opCode == 12) {
 				executeAndi();
-				System.out.println(mRegisters[22].getValue2sComp());
+//				System.out.println(mRegisters[22].getValue2sComp());
 			} else if (opCode == 13) {
 				executeOri();
 //				System.out.println(mRegisters[20].getValue2sComp());
 			}
 			instruction = new BitString();
 			instruction.setBits(new char[0]);
-			x++;
 		}
 	}
 
