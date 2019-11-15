@@ -21,10 +21,19 @@ public class Simulator {
 		/** Your grade will depend largely on how well that works. */
 		/************************************** */
 
-		String program[] = { "0010000000000111", "0010001000000111",
-				"0001010000000001", "0000010000000011", "1111000000100001",
-				"0001000000111111", "0000111111111011", "1111000000100101",
-				"0000000000111001", "1111111111010000" };
+//		String program[] = { "0010000000000111", "0010001000000111",
+//				"0001010000000001", "0000010000000011", "1111000000100001",
+//				"0001000000111111", "0000111111111011", "1111000000100101",
+//				"0000000000111001", "1111111111010000" };
+		
+		// first 32 bits is lw a0, 10(s0) = "100011, 10000, 00100, 0000000000001010"
+		// second 32 bits is addi s0, s1, 10 = "001000, 10001, 10000, 0000000000001010"
+		// third 32 bits is add s2, s0, s0 = "000000, 10000, 10000, 10010, 00000 100000" 
+		// fourth 32 bits is lw s3, 32(t0) = "100011, 10000, 00100, 0000000000001010"
+		// fourth 32 bits is addu 
+		String program[] = {"10001110", "00000100", "00000000", "00001010",
+				"00100010", "00110000", "00000000", "00001010", 
+				"00000010", "00010000", "10010000", "00100000"};
 
 		/*
 		 * This is the assembly program that was compiled into the binary
@@ -46,7 +55,7 @@ public class Simulator {
 		 * 		.END
 		 */
 		comp = new Computer();
-		comp.display();
+//		comp.display();
 
 		/* TO DO: load the instructions in the "program" array */
 //		loadInstructions(program, comp);
@@ -87,7 +96,7 @@ public class Simulator {
 		comp.execute();
 
 		/* shows final configuration of computer */
-		comp.display();
+//		comp.display();
 	}
 
 }

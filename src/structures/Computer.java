@@ -15,7 +15,7 @@ package structures;
 public class Computer {
 
 	private final static int MAX_MEMORY = 50;
-	private final static int MAX_REGISTERS = 8;
+	private final static int MAX_REGISTERS = 32;
 
 	private BitString mRegisters[];
 	private BitString mMemory[];
@@ -38,13 +38,13 @@ public class Computer {
 		mRegisters = new BitString[MAX_REGISTERS];
 		for (int i = 0; i < MAX_REGISTERS; i++) {
 			mRegisters[i] = new BitString();
-			mRegisters[i].setValue(i);
+			mRegisters[i].setValue(0);
 		}
 
 		mMemory = new BitString[MAX_MEMORY];
 		for (int i = 0; i < MAX_MEMORY; i++) {
 			mMemory[i] = new BitString();
-			mMemory[i].setValue(0);
+			mMemory[i].setValue(i);
 		}
 	}
 
@@ -65,18 +65,9 @@ public class Computer {
 		BitString destBS = mIR.substring(16, 5);
 		BitString source1BS = mIR.substring(6, 5);
 		BitString source2BS = mIR.substring(11, 5);
-		//int addMode = mIR.substring(10, 1).getValue();
 		int sum = mRegisters[source1BS.getValue()].getValue2sComp()
 					+ mRegisters[source2BS.getValue()].getValue2sComp();
-//		if (addMode == 0) {
-//			BitString source2BS = mIR.substring(13, 3);
-//			sum += mRegisters[source2BS.getValue()].getValue2sComp();
-//		} else if (addMode == 1) {
-//			int immNum = mIR.substring(11, 5).getValue2sComp();
-//			sum += immNum;
-//		}
 		mRegisters[destBS.getValue()].setValue2sComp(sum);
-//		setCC(destBS);
 	}
 	
 	public void executeAddu() {
@@ -99,7 +90,7 @@ public class Computer {
 		mRegisters[destBS.getValue()].setValue2sComp(sum);
 	}
 	
-	public void executeAddui() {
+	public void executeAddiu() {
 		BitString destBS = mIR.substring(11, 5);
 		BitString source1BS = mIR.substring(6, 5);
 		int immNum = mIR.substring(16, 16).getValue();
@@ -192,11 +183,15 @@ public class Computer {
 		mRegisters[destBS.getValue()].setBits(binChar);		
 	}
 	
+	// FIX THIS METHOD, NOT LOADING COMPLETELY CORRECTLY
 	public void executeLw() {
-		BitString destBS = mIR.substring(4, 3);
-		BitString pcOffset = mIR.substring(7, 9);
-		int location = mPC.getValue() + pcOffset.getValue2sComp();
-		BitString valueAtLocation = mMemory[location];
+		BitString destBS = mIR.substring(11, 5);
+		BitString baseBS = mIR.substring(6, 5);
+		BitString pcOffset = mIR.substring(16, 16);
+//		int location = mPC.getValue() + pcOffset.getValue2sComp();
+		BitString valueAtLocation = mMemory[baseBS.getValue() 
+		                                    + pcOffset.getValue()];
+//		System.out.println(valueAtLocation.getValue());
 		mRegisters[destBS.getValue()].setValue2sComp(valueAtLocation.getValue2sComp());
 //		setCC(destBS);
 	}
@@ -230,12 +225,12 @@ public class Computer {
 		BitString source1BS = mIR.substring(6, 5);
 		BitString source2BS = mIR.substring(11, 5);
 		BitString labelBS = mIR.substring(16, 16);
-		int offset = (labelBS.getValue2sComp() - mPC.getValue()) / 4
+		int offset = (labelBS.getValue2sComp() - mPC.getValue()) / 4;
 		
 		BitString source1 = mRegisters[source1BS.getValue()];
 		BitString source2 = mRegisters[source2BS.getValue()];
 		
-		if (source1.getValue() == source2.getValue())) {
+		if (source1.getValue() == source2.getValue()) {
 			mPC.setValue2sComp(mPC.getValue() + offset);
 		}
 	}
@@ -244,26 +239,26 @@ public class Computer {
 		BitString source1BS = mIR.substring(6, 5);
 		BitString source2BS = mIR.substring(11, 5);
 		BitString labelBS = mIR.substring(16, 16);
-		int offset = (labelBS.getValue2sComp() - mPC.getValue()) / 4
+		int offset = (labelBS.getValue2sComp() - mPC.getValue()) / 4;
 		
 		BitString source1 = mRegisters[source1BS.getValue()];
 		BitString source2 = mRegisters[source2BS.getValue()];
 		
-		if (source1.getValue() != source2.getValue())) {
-			mPC.setValue(mPC.getValue() + offset);
+		if (source1.getValue() != source2.getValue()) {
+			mPC.setValue2sComp(mPC.getValue() + offset);
 		}
 	}
 	
 	public void executeJ() {
 		BitString addressBS = mIR.substring(6, 26);
-		mPC.setValue(addressBS.getValue());
+		mPC.setValue2sComp(addressBS.getValue());
 	}
 	
 	public void executeJr() {
 		BitString registerBS = mIR.substring(6, 5);
 		BitString addressBS = mRegisters[registerBS.getValue()];
 		
-		mPC.setValue(addressBS.getValue());
+		mPC.setValue2sComp(addressBS.getValue());
 	}
 	
 //	public void setCC(BitString destBS) {
@@ -278,10 +273,10 @@ public class Computer {
 //		}
 //	}
 	
-	public void executeOut() {
-		int asciiCode = mRegisters[0].getValue();
-		System.out.println((char) asciiCode);
-	}
+//	public void executeOut() {
+//		int asciiCode = mRegisters[0].getValue();
+//		System.out.println((char) asciiCode);
+//	}
 
 	/**
 	 * This method will execute all the instructions starting at address 0 
@@ -290,33 +285,58 @@ public class Computer {
 	public void execute() {
 		BitString opCodeStr;
 		int opCode;
-		while (true) {
+		BitString instruction = new BitString();
+		instruction.setBits(new char[0]);
+		int x = 0;
+		while (x < 4) {
 			// Fetch the instruction
-			mIR = mMemory[mPC.getValue()];
-			mPC.addOne();
+			for (int i = 0; i < 4; i++) {
+				instruction = instruction.append(mMemory[mPC.getValue()]);
+				mPC.addOne();
+			}
+			mIR = instruction;
+//			mPC.addFour();
 
 			// Decode the instruction's first 4 bits 
 			// to figure out the opcode
-			opCodeStr = mIR.substring(0, 4);
+			opCodeStr = mIR.substring(0, 6);
 			opCode = opCodeStr.getValue();
 
 			// What instruction is this?
-			if (opCode == 9) { // NOT
-				executeNot();
-			} else if (opCode == 1) { // ADD
-				executeAdd();
-			} else if (opCode == 2) { // LOAD
-				executeLoad();
-			} else if (opCode == 0) { // BRANCH
-				executeBranch();
-			} else if (opCode == 15) { // TRAP
-				int trapVect = mIR.substring(8, 8).getValue();
-				if (trapVect == 37) {
-					return;
-				} else if (trapVect == 33) {
-					executeOut();
+//			if (opCode == 9) { // NOT
+//				executeNot();
+//			} else if (opCode == 1) { // ADD
+//				executeAdd();
+//			} else if (opCode == 2) { // LOAD
+//				executeLoad();
+//			} else if (opCode == 0) { // BRANCH
+//				executeBranch();
+//			} else if (opCode == 15) { // TRAP
+//				int trapVect = mIR.substring(8, 8).getValue();
+//				if (trapVect == 37) {
+//					return;
+//				} else if (trapVect == 33) {
+//					executeOut();
+//				}
+//			}
+			if (opCode == 35) {
+				executeLw();
+//				System.out.println(mRegisters[4].getValue());
+			} else if (opCode == 0) {
+				BitString functCode = mIR.substring(26, 6);
+				if (functCode.getValue() == 32) {
+					executeAdd();
+//					System.out.println(mRegisters[18].getValue());
+				} else {
+					executeAddu();
 				}
-			}
+			} else if (opCode == 8) {
+				executeAddi();
+//				System.out.println(mRegisters[16].getValue());
+			} 
+			instruction = new BitString();
+			instruction.setBits(new char[0]);
+			x++;
 		}
 	}
 
