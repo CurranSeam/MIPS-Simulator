@@ -4,8 +4,10 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.LayoutManager;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -17,7 +19,9 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
+import javax.swing.border.EmptyBorder;
 
 import structures.BitString;
 import structures.Simulator;
@@ -69,6 +73,12 @@ public class MipsSimulatorView extends JFrame{
 	 * Memory
 	 */
 	private ArrayList<JTextArea> myMemory;
+	
+	private JTabbedPane myEditorTab;
+	
+	private JTabbedPane myRegisterTab;
+	
+	private JTabbedPane myMemoryTab;
     
     public MipsSimulatorView() {
     	super();
@@ -91,26 +101,33 @@ public class MipsSimulatorView extends JFrame{
         add(makeExecutionPanel(), BorderLayout.NORTH);
         
         myDataPanel = new JPanel(new BorderLayout());
-        myData = new JTextArea(30, 50);
+        myEditorTab = new JTabbedPane();
+        myEditorTab.addTab("", myDataPanel); 
+        myRegisterTab = new JTabbedPane();
+        myMemoryTab = new JTabbedPane();
+        myMemoryTab.setBorder(new EmptyBorder(0, 5, 10, 5));
+        myData = new JTextArea(32, 50);
         myData.setFont(myData.getFont().deriveFont(15f));
         JPanel centerPanel = new JPanel();
         
         myDataPanel.add(myData, BorderLayout.CENTER);
-        centerPanel.add(myDataPanel, BorderLayout.WEST);
+        centerPanel.add(myEditorTab, BorderLayout.WEST);
         
         myRegisters = new ArrayList<>();
         myMemory = new ArrayList<>();
-        centerPanel.add(makeInfoPanel(), BorderLayout.WEST);
+        myRegisterTab.addTab("Registers", makeInfoPanel());
+        centerPanel.add(myRegisterTab, BorderLayout.WEST);
         
         add(centerPanel, BorderLayout.CENTER);
         
-        add(makeMemoryPanel(), BorderLayout.SOUTH);
+        myMemoryTab.addTab("Memory", makeMemoryPanel());
+        add(myMemoryTab, BorderLayout.SOUTH);
         
         mySimulator = new Simulator();
         
         final JMenuBar menuBar = new JMenuBar();
 		final JMenu settingsMenu = new JMenu();
-		settingsMenu.setText("settings");
+		settingsMenu.setText("Settings");
 		final JMenuItem aboutPage = createAboutPageItem();
 		settingsMenu.add(aboutPage);
 		menuBar.add(settingsMenu);
@@ -129,8 +146,12 @@ public class MipsSimulatorView extends JFrame{
     }
     
     private JPanel makeExecutionPanel() {
-        final JPanel p = new JPanel();
+        final JPanel p = new JPanel((LayoutManager) new FlowLayout(FlowLayout.LEFT));
         p.setBackground(Color.LIGHT_GRAY);
+        
+        JLabel groupName = new JLabel("DESI CREW MIPS SIMULATOR");
+        groupName.setBorder(new EmptyBorder(10, 10, 10, 50));
+        p.add(groupName);
         
         final JButton loadButton = new JButton("Load Program");
         loadButton.setBackground(Color.orange);
@@ -153,6 +174,7 @@ public class MipsSimulatorView extends JFrame{
             			"	jr $t1 \n" + 
             			"exit:             ");
             	myData.setEditable(false);
+            	myEditorTab.setTitleAt(0, "Program.asm");
             	loadButton.setEnabled(false);
             }
         });
@@ -172,6 +194,7 @@ public class MipsSimulatorView extends JFrame{
         p.add(runButton);
         
     	JLabel name = new JLabel("PC");
+    	name.setBorder(new EmptyBorder(0, 220, 0, 0));
     	myPC = new JTextArea("0");
 //    	myPC.setPreferredSize(new Dimension(5, 1));
     	myPC.setEditable(false);
@@ -205,7 +228,7 @@ public class MipsSimulatorView extends JFrame{
     
     private JPanel makeMemoryPanel() {
     	final JPanel memory = new JPanel(new GridLayout(4, 25));
-        memory.setBackground(Color.gray);
+        memory.setBackground(Color.LIGHT_GRAY);
 //        memory.setPreferredSize(new Dimension(500, 750));
         
         for (int i = 0; i < 100; i++) {
@@ -238,11 +261,11 @@ public class MipsSimulatorView extends JFrame{
     private JMenuItem createAboutPageItem() {
 		final JMenuItem aboutPage = new JMenuItem();
 
-		aboutPage.setText("about");
+		aboutPage.setText("About...");
 		aboutPage.addActionListener(event -> {
             JOptionPane.showMessageDialog(null,
-            		"Created by\n Curran Seam, Rohan Seam, Sharanjit Singh\n"
-            		+ "Autumn 2019\nTCSS 372 Project 1\nMIPS Simulator",
+            		"\tCreated by\nCurran Seam,\nRohan Seam,\nSharanjit Singh\n\n"
+            		+ "\tAutumn 2019\n\tTCSS 372 Project 1\n\tMIPS Simulator",
                     "About", JOptionPane.INFORMATION_MESSAGE,
                     new ImageIcon());
 		});
