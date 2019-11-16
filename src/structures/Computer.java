@@ -404,4 +404,16 @@ public class Computer {
 		System.out.println();
 
 	}
+	
+	public BitString getRegisters(int register) {
+		return mRegisters[register].copy();
+	}
+	
+	public BitString getMemory(int memory) {
+		return mMemory[memory].copy();
+	}
+	
+	public BitString getPC() {
+		return mPC.copy();
+	}
 }

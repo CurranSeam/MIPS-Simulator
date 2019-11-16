@@ -1,9 +1,14 @@
 package structures;
+
 public class Simulator {
+	
+	private Computer comp;
 
-	public static void main(String[] args) {
-
-		Computer comp;
+	public Simulator() {
+		comp = new Computer();
+	}
+	
+	public void start() {
 
 		/************************************** */
 		/** The next two variables - program and programSize - */
@@ -76,7 +81,6 @@ public class Simulator {
 		 * 
 		 * 		.END
 		 */
-		comp = new Computer();
 //		comp.display();
 
 		/* TO DO: load the instructions in the "program" array */
@@ -119,6 +123,10 @@ public class Simulator {
 
 		/* shows final configuration of computer */
 //		comp.display();
+	}
+	
+	public Computer getComputer() {
+		return comp;
 	}
 
 }
