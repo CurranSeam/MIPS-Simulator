@@ -1,17 +1,20 @@
+/*
+ * TCSS 372
+ * Project 1
+ * MIPS Simulator
+ * 
+ */
 package view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.LayoutManager;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -31,17 +34,21 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
+/**
+ * This class represents the MIPS Simulator GUI.
+ * 
+ * @version 11/10/19
+ * @author Curran Seam
+ * @author Rohan Seam
+ * @author Sharanjit Singh
+ *
+ */
 public class MipsSimulatorView extends JFrame{
 
     /**
      * A generated serial version UID for object Serialization.
      */
     private static final long serialVersionUID = -8255134897469998994L;
-    
-    /**
-     * Constant String for a title name.
-     */
-    private static final String TITLE = "MIPS Simulator";
     
     // constants to capture screen dimensions
     /** A ToolKit. */
@@ -51,45 +58,62 @@ public class MipsSimulatorView extends JFrame{
     private static final Dimension SCREEN_SIZE = KIT.getScreenSize();
     
 	/**
-	 * Main data to be contained
+	 * Main program data to be contained.
 	 */
 	private JTextArea myData;
 	
 	/**
-	 * Data Panel
+	 * Data Panel for holding the editor tab.
 	 */
 	private JPanel myDataPanel;
 	
+	/**
+	 * An instance of the MIPS simulator.
+	 */
 	private Simulator mySimulator;
 	
+	/**
+	 * The program counter of the Computer.
+	 */
 	private JTextArea myPC;
 	
 	/**
-	 * Registers
+	 * Registers in the MIPS simulator.
 	 */
 	private ArrayList<JTextArea> myRegisters;
 	
 	/**
-	 * Memory
+	 * Memory in the MIPS simulator.
 	 */
 	private ArrayList<JTextArea> myMemory;
 	
+	/**
+	 * Tabbed pane to display the data panel.
+	 */
 	private JTabbedPane myEditorTab;
 	
+	/**
+	 * Tabbed pane to display the registers.
+	 */
 	private JTabbedPane myRegisterTab;
 	
+	/**
+	 * Tabbed pane to display memory.
+	 */
 	private JTabbedPane myMemoryTab;
     
+	/**
+	 * Constructs a MipsSimulatorView.
+	 */
     public MipsSimulatorView() {
     	super();
     	setupGUI();
     }
     
+    /**
+     * Sets up the simulator GUI.
+     */
     private void setupGUI() {
-        // hide the default JFrame icon
-        //final Image icon = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB_PRE);
-        
-        
         // replace the default JFrame icon
         final ImageIcon img = new ImageIcon("MIPSlogo.png");
         setIconImage(img.getImage());
@@ -103,10 +127,13 @@ public class MipsSimulatorView extends JFrame{
         myDataPanel = new JPanel(new BorderLayout());
         myEditorTab = new JTabbedPane();
         myEditorTab.addTab("", myDataPanel); 
+        myEditorTab.setBorder(new EmptyBorder(0, 10, 0, 10));
         myRegisterTab = new JTabbedPane();
+        myRegisterTab.setBorder(new EmptyBorder(0, 10, 0, 10));
         myMemoryTab = new JTabbedPane();
-        myMemoryTab.setBorder(new EmptyBorder(0, 5, 10, 5));
+        myMemoryTab.setBorder(new EmptyBorder(0, 10, 15, 10));
         myData = new JTextArea(32, 50);
+        myData.setEditable(false);
         myData.setFont(myData.getFont().deriveFont(15f));
         JPanel centerPanel = new JPanel();
         
@@ -129,7 +156,9 @@ public class MipsSimulatorView extends JFrame{
 		final JMenu settingsMenu = new JMenu();
 		settingsMenu.setText("Settings");
 		final JMenuItem aboutPage = createAboutPageItem();
+		final JMenuItem morePage = createMorePageItem();
 		settingsMenu.add(aboutPage);
+		settingsMenu.add(morePage);
 		menuBar.add(settingsMenu);
 		this.setJMenuBar(menuBar);
 
@@ -145,6 +174,10 @@ public class MipsSimulatorView extends JFrame{
         setVisible(true);
     }
     
+    /**
+     * Creates the top panel of the simulator which holds the execution buttons.
+     * @return JPanel
+     */
     private JPanel makeExecutionPanel() {
         final JPanel p = new JPanel((LayoutManager) new FlowLayout(FlowLayout.LEFT));
         p.setBackground(Color.LIGHT_GRAY);
@@ -155,6 +188,20 @@ public class MipsSimulatorView extends JFrame{
         
         final JButton loadButton = new JButton("Load Program");
         loadButton.setBackground(Color.orange);
+        
+        final JButton runButton = new JButton("Execute Next");
+        runButton.setBackground(Color.YELLOW);
+        
+        final JButton executeButton = new JButton("Execute All");
+        executeButton.setBackground(Color.GREEN);
+        
+        p.add(loadButton);
+        p.add(runButton);
+        p.add(executeButton);
+        
+        runButton.setEnabled(false);
+        executeButton.setEnabled(false);
+        
         loadButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent theEvent) {
@@ -176,27 +223,42 @@ public class MipsSimulatorView extends JFrame{
             	myData.setEditable(false);
             	myEditorTab.setTitleAt(0, "Program.asm");
             	loadButton.setEnabled(false);
+            	runButton.setEnabled(true);
+                executeButton.setEnabled(true);
+            	mySimulator.start();
+            	updateMemory();
             }
         });
-        p.add(loadButton);
         
-        final JButton runButton = new JButton("Execute");
-        runButton.setBackground(Color.GREEN);
         runButton.addActionListener(new ActionListener() {
+        	int clicked = 0;
             @Override
             public void actionPerformed(final ActionEvent theEvent) {
-            	mySimulator.start();
+            	clicked++;
+            	if (clicked == 19) {
+            		runButton.setEnabled(false);
+            	}
+            	mySimulator.execute();
             	updateInfo();
             	updateMemory();
+            	executeButton.setEnabled(false);
+            }
+        });
+        
+        executeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent theEvent) {
+            	mySimulator.executeAll();
+            	updateInfo();
+            	updateMemory();
+            	executeButton.setEnabled(false);
             	runButton.setEnabled(false);
             }
         });
-        p.add(runButton);
         
     	JLabel name = new JLabel("PC");
-    	name.setBorder(new EmptyBorder(0, 220, 0, 0));
+    	name.setBorder(new EmptyBorder(0, 110, 0, 0));
     	myPC = new JTextArea("0");
-//    	myPC.setPreferredSize(new Dimension(5, 1));
     	myPC.setEditable(false);
     	
     	p.add(name);
@@ -205,6 +267,10 @@ public class MipsSimulatorView extends JFrame{
         return p;
     }
     
+    /**
+     * Creates the info panel which contains the registers and their values.
+     * @return JPanel
+     */
     private JPanel makeInfoPanel() {
     	String[] registerNames = {"$zero", "$at", "$v0", "$v1", "$a0", "$a1", "$a2", "$a3",
         		"$t0", "$t1", "$t2", "$t3", "$t4", "$t5", "$t6", "$t7", "$s0", "$s1", "$s2",
@@ -217,7 +283,7 @@ public class MipsSimulatorView extends JFrame{
         for (int i = 0; i < 32; i++) {
         	JLabel name = new JLabel(registerNames[i]);
         	JTextArea register = new JTextArea("0");
-        	register.setPreferredSize(new Dimension(5, 1));
+        	register.setPreferredSize(new Dimension(1, 1));
         	register.setEditable(false);
         	myRegisters.add(register);
         	info.add(name);
@@ -226,14 +292,16 @@ public class MipsSimulatorView extends JFrame{
         return info;
     }
     
+    /**
+     * Creates the memory panel which contains the locations in memory and their values.
+     * @return JPanel.
+     */
     private JPanel makeMemoryPanel() {
     	final JPanel memory = new JPanel(new GridLayout(4, 25));
         memory.setBackground(Color.LIGHT_GRAY);
-//        memory.setPreferredSize(new Dimension(500, 750));
         
         for (int i = 0; i < 100; i++) {
         	JTextArea memoryValue = new JTextArea("0");
-//        	memoryValue.setPreferredSize(new Dimension(5, 1));
         	memoryValue.setEditable(false);
         	myMemory.add(memoryValue);
         	memory.add(memoryValue);
@@ -242,15 +310,21 @@ public class MipsSimulatorView extends JFrame{
         return memory;
     }
     
+    /**
+     * Updates the register values.
+     */
     private void updateInfo() {
     	BitString pcBS = mySimulator.getComputer().getPC();
     	myPC.setText(Integer.toString(pcBS.getValue()));
     	for (int i = 0; i < 32; i++) {
-    		BitString registerBS = mySimulator.getComputer().getRegisters(i);
+    		BitString registerBS = mySimulator.getComputer().getRegister(i);
     		myRegisters.get(i).setText(Integer.toString(registerBS.getValue2sComp()));
     	}
     }
     
+    /**
+     * Updates values in memory.
+     */
     private void updateMemory() {
     	for (int i = 0; i < 100; i++) {
     		BitString memoryBS = mySimulator.getComputer().getMemory(i);
@@ -258,14 +332,35 @@ public class MipsSimulatorView extends JFrame{
     	}
     }
     
+    /**
+     * Creates an about page regarding information about students, class, and project.
+     * @return JMenuItem
+     */
     private JMenuItem createAboutPageItem() {
 		final JMenuItem aboutPage = new JMenuItem();
 
 		aboutPage.setText("About...");
 		aboutPage.addActionListener(event -> {
             JOptionPane.showMessageDialog(null,
-            		"\tCreated by\nCurran Seam,\nRohan Seam,\nSharanjit Singh\n\n"
+            		"\tDeveloped by:\nCurran Seam\nRohan Seam\nSharanjit Singh\n\n"
             		+ "\tAutumn 2019\n\tTCSS 372 Project 1\n\tMIPS Simulator",
+                    "About", JOptionPane.INFORMATION_MESSAGE,
+                    new ImageIcon());
+		});
+		return aboutPage;
+	}
+    
+    /**
+     * Creates a more page.
+     * @return JMenuItem
+     */
+    private JMenuItem createMorePageItem() {
+		final JMenuItem aboutPage = new JMenuItem();
+
+		aboutPage.setText("More...");
+		aboutPage.addActionListener(event -> {
+            JOptionPane.showMessageDialog(null,
+            		"( ͡° ͜ʖ ͡°)_/               Yo",
                     "About", JOptionPane.INFORMATION_MESSAGE,
                     new ImageIcon());
 		});

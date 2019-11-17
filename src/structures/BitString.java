@@ -1,4 +1,11 @@
+/*
+ * TCSS 372
+ * Project 1
+ * MIPS Simulator
+ * 
+ */
 package structures;
+
 import java.util.Arrays;
 
 /**
@@ -20,7 +27,14 @@ public class BitString {
 	private final static int MIN_VALUE = -2147483648; // -2^15
 	private final static long MAX_UNSIGNED_VALUE = 4294967295L;// 2^16 - 1
 	
+	/**
+	 * Collection to hold the bits of the BitString.
+	 */
 	private char[] mBits;
+	
+	/**
+	 * Length of the BitString.
+	 */
 	private int mLength;
 
 
@@ -37,10 +51,14 @@ public class BitString {
 		mLength = bits.length;
 	}
 	
+	/**
+	 * Applies a sign extension on a BitString. If the BitString's most significant
+	 * bit is a 1, prepends 16 1's to the BitString. If the BitString's most significant
+	 * bit is a 0, prepends 16 0's to the BitString.
+	 * @return the sign extended BitString.
+	 */
 	public BitString signExtend() {
 		BitString signExtend = new BitString();
-//		BitString original = new BitString();
-//		original.setBits(mBits);
 		if (mBits[0] == '1') {
 			char[] bitsExtend = {'1', '1', '1', '1', '1', '1', '1', '1', 
 					'1', '1', '1', '1', '1', '1', '1', '1'};
@@ -87,36 +105,6 @@ public class BitString {
 				mBits[i] = '0';
 			}
 		}
-	}
-	
-	/**
-	 * Adds 4 to the BitString. 
-	 */
-	public void addFour() {
-		for (int i = 0; i < 4; i++) {
-			addOne();
-		}
-	}
-	
-	/**
-	 * Adds 4 to the BitString. 
-	 */
-	public void shiftLeftLogical(int n) {
-		if (mBits == null) {
-			throw new IllegalArgumentException("Bit String must be set first.");
-		}
-		int num = getValue2sComp();
-		for (int i = 0; i <= n; i++) {
-			num = num << n;
-		}
-		String binString = Integer.toBinaryString(num);
-		// Creating array of string length 
-        char[] binChar = new char[binString.length()]; 
-        // Copy character by character into array 
-        for (int i = 0; i < binString.length(); i++) { 
-            binChar[i] = binString.charAt(i); 
-        }
-        mBits = binChar;
 	}
 
 	/**
@@ -287,5 +275,4 @@ public class BitString {
 	public int getLength() {
 		return mLength;
 	}
-
 }
