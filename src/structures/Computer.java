@@ -308,7 +308,6 @@ public class Computer {
 		}
 		mIR = instruction;
 		if (mIR.getValue() == 0) {
-			System.out.println("null reached");
 			return;
 		}
 		
